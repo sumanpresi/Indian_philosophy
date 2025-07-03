@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Philosophy Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .dashboard {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white;
+            padding: 24px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #dbeafe;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 1024px) {
+            .main-content {
+                flex-direction: row;
+            }
+        }
+
+        .sidebar {
+            width: 100%;
+            background: #f9fafb;
+            border-right: 1px solid #e5e7eb;
+            padding: 16px;
+        }
+
+        @media (min-width: 1024px) {
+            .sidebar {
+                width: 320px;
+            }
+        }
+
+        .sidebar h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .episode-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .episode-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .episode-btn:hover {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .episode-btn.active {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .episode-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .episode-icon {
+            padding: 8px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .episode-icon.blue { background: #3b82f6; }
+        .episode-icon.green { background: #10b981; }
+        .episode-icon.purple { background: #8b5cf6; }
+        .episode-icon.red { background: #ef4444; }
+
+        .episode-text h3 {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .episode-text p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+
+        .episode-text span {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px;
+        }
+
+        .content-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .content-header h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .content-header p {
+            color: #6b7280;
+        }
+
+        .expandable-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            width: 100%;
+            padding: 12px 16px;
+            background: #f9fafb;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.2s;
+        }
+
+        .section-header:hover {
+            background: #f3f4f6;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .section-content {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: none;
+        }
+
+        .section-content.expanded {
+            display: block;
+        }
+
+        .concept-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .concept-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .concept-bullet {
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 50%;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .concept-bullet.green { background: #10b981; }
+        .concept-bullet.purple { background: #8b5cf6; }
+        .concept-bullet.red { background: #ef4444; }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .question-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .question-card {
+            background: #dbeafe;
+            padding: 12px;
+            border-radius: 8px;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        .question-card.green { background: #d1fae5; color: #065f46; }
+        .question-card.purple { background: #e0e7ff; color: #5b21b6; }
+        .question-card.red { background: #fee2e2; color: #991b1b; }
+
+        .evolution-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .phase-item {
+            border-left: 4px solid #10b981;
+            padding-left: 16px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .phase-title {
+            font-weight: 600;
+            color: #047857;
+            margin-bottom: 4px;
+        }
+
+        .phase-desc {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+        }
+
+        .phase-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .phase-point {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .phase-point::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+        .central-question {
+            background: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #8b5cf6;
+            margin-bottom: 24px;
+        }
+
+        .central-question h3 {
+            font-weight: 600;
+            color: #6b21a8;
+            margin-bottom: 8px;
+        }
+
+        .central-question p {
+            color: #7c3aed;
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .info-card {
+            background: #fef2f2;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .info-card h3 {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            color: #dc2626;
+        }
+
+        .maxim-box {
+            background: #fef2f2;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #ef4444;
+            margin-bottom: 24px;
+        }
+
+        .maxim-box h3 {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 8px;
+        }
+
+        .maxim-box p {
+            color: #dc2626;
+            font-style: italic;
+        }
+
+        .historical-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .historical-info div {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .historical-info span:first-child {
+            font-weight: 500;
+            color: #1f2937;
+            min-width: 80px;
+        }
+
+        .historical-info span:last-child {
+            color: #6b7280;
+        }
+
+        .figure-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .figure-tag {
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .chevron {
+            transition: transform 0.2s;
+        }
+
+        .chevron.expanded {
+            transform: rotate(90deg);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard">
+            <div class="header">
+                <h1>Indian Philosophy Dashboard</h1>
+                <p>Dr. Vikas Divyakirti's Philosophy Series</p>
+            </div>
+            
+            <div class="main-content">
+                <div class="sidebar">
+                    <h2>Episodes</h2>
+                    <div class="episode-nav">
+                        <button class="episode-btn active" data-episode="0">
+                            <div class="episode-info">
+                                <div class="episode-icon blue">💡</div>
+                                <div class="episode-text">
+                                    <h3>Ep 1</h3>
+                                    <p>What is Philosophy?</p>
+                                    <span>Introduction to Darshan</span>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="episode-btn" data-episode="1">
+                            <div class="episode-info">
+                                <div class="episode-icon green">📅</div>
+                                <div class="episode-text">
+                                    <h3>Ep 2</h3>
+                                    <p>History of Indian Philosophy</p>
+                                    <span>From Vedas to Osho</span>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="episode-btn" data-episode="2">
+                            <div class="episode-info">
+                                <div class="episode-icon purple">👁️</div>
+                                <div class="episode-text">
+                                    <h3>Ep 3</h3>
+                                    <p>Ultimate Reality</p>
+                                    <span>Metaphysical Inquiry</span>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button class="episode-btn" data-episode="3">
+                            <div class="episode-info">
+                                <div class="episode-icon red">🧠</div>
+                                <div class="episode-text">
+                                    <h3>Ep 4</h3>
+                                    <p>Charvaka Philosophy</p>
+                                    <span>Materialistic Worldview</span>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="content-area">
+                    <div class="content-header">
+                        <div class="episode-icon blue">💡</div>
+                        <div>
+                            <h2 id="episode-title">Episode 1: What is Philosophy?</h2>
+                            <p id="episode-subtitle">Introduction to Darshan</p>
+                        </div>
+                    </div>
+                    
+                    <div id="episode-content">
+                        <!-- Episode 1 Content -->
+                        <div class="episode-content" id="episode-0">
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="concepts">
+                                    <div class="section-title">
+                                        <span>📚</span>
+                                        <span>Main Concepts</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="concepts">
+                                    <ul class="concept-list">
+                                        <li class="concept-item">
+                                            <div class="concept-bullet"></div>
+                                            <span>Philosophy (darshan) = 'seeing' or 'insight' vs Western 'love of wisdom'</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet"></div>
+                                            <span>Arises from human curiosity about fundamental questions</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet"></div>
+                                            <span>Philosophy is the 'mother of all sciences'</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet"></div>
+                                            <span>Developed after agricultural revolution created leisure time</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="questions">
+                                    <div class="section-title">
+                                        <span>🎯</span>
+                                        <span>Fundamental Questions</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="questions">
+                                    <div class="question-grid">
+                                        <div class="question-card">Who am I?</div>
+                                        <div class="question-card">Where did I come from?</div>
+                                        <div class="question-card">What is the purpose of life?</div>
+                                        <div class="question-card">What happens after death?</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="evolution">
+                                    <div class="section-title">
+                                        <span>📅</span>
+                                        <span>Evolution of Human Thought</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="evolution">
+                                    <div class="evolution-step">
+                                        <div class="step-number">1</div>
+                                        <span>Prehistoric curiosity about nature</span>
+                                    </div>
+                                    <div class="evolution-step">
+                                        <div class="step-number">2</div>
+                                        <span>Agricultural revolution → surplus resources</span>
+                                    </div>
+                                    <div class="evolution-step">
+                                        <div class="step-number">3</div>
+                                        <span>Development of prefrontal cortex</span>
+                                    </div>
+                                    <div class="evolution-step">
+                                        <div class="step-number">4</div>
+                                        <span>Complex thinking and language capabilities</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Episode 2 Content -->
+                        <div class="episode-content hidden" id="episode-1">
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="phases">
+                                    <div class="section-title">
+                                        <span>📅</span>
+                                        <span>Historical Phases</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="phases">
+                                    <div class="phase-item">
+                                        <div class="phase-title">Vedic Period</div>
+                                        <div class="phase-desc">Ancient texts with four divisions: Samhita, Brahmana, Aranyaka, Upanishads</div>
+                                        <ul class="phase-points">
+                                            <li class="phase-point">Introduces Atman, Moksha, Brahman</li>
+                                            <li class="phase-point">Philosophical foundation</li>
+                                        </ul>
+                                    </div>
+                                    <div class="phase-item">
+                                        <div class="phase-title">Heterodox Schools</div>
+                                        <div class="phase-desc">Jainism, Buddhism, Charvaka questioning Vedic authority</div>
+                                        <ul class="phase-points">
+                                            <li class="phase-point">Termed 'nastika' (non-Vedic)</li>
+                                            <li class="phase-point">Alternative approaches to truth</li>
+                                        </ul>
+                                    </div>
+                                    <div class="phase-item">
+                                        <div class="phase-title">Six Orthodox Schools</div>
+                                        <div class="phase-desc">Sankhya, Yoga, Nyaya, Vaisheshika, Mimamsa, Vedanta</div>
+                                        <ul class="phase-points">
+                                            <li class="phase-point">Accept Vedas as authoritative</li>
+                                            <li class="phase-point">Systematic philosophical inquiry</li>
+                                        </ul>
+                                    </div>
+                                    <div class="phase-item">
+                                        <div class="phase-title">Era of Interpretations</div>
+                                        <div class="phase-desc">Advaita, Vishishtadvaita, Dvaita traditions</div>
+                                        <ul class="phase-points">
+                                            <li class="phase-point">Bhakti movement</li>
+                                            <li class="phase-point">Sikh philosophy under Guru Nanak</li>
+                                        </ul>
+                                    </div>
+                                    <div class="phase-item">
+                                        <div class="phase-title">Modern Period</div>
+                                        <div class="phase-desc">19th-20th century reform movements</div>
+                                        <ul class="phase-points">
+                                            <li class="phase-point">New interpretations</li>
+                                            <li class="phase-point">Contemporary thinkers like Osho</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="features">
+                                    <div class="section-title">
+                                        <span>🏆</span>
+                                        <span>Common Features</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="features">
+                                    <div class="question-grid">
+                                        <div class="question-card green">Belief in soul (Atman)</div>
+                                        <div class="question-card green">Karma and rebirth</div>
+                                        <div class="question-card green">Liberation (Moksha)</div>
+                                        <div class="question-card green">Pursuit of ultimate truth</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Episode 3 Content -->
+                        <div class="episode-content hidden" id="episode-2">
+                            <div class="central-question">
+                                <h3>Central Question</h3>
+                                <p>What is the ultimate reality? (अंतिम सत्य क्या है)</p>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="approach">
+                                    <div class="section-title">
+                                        <span>🧠</span>
+                                        <span>Approach</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="approach">
+                                    <ul class="concept-list">
+                                        <li class="concept-item">
+                                            <div class="concept-bullet purple"></div>
+                                            <span>Logical and rational exploration</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet purple"></div>
+                                            <span>Historical philosophical responses</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet purple"></div>
+                                            <span>Contemporary relevance</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet purple"></div>
+                                            <span>Accessible presentation of complex concepts</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="focus">
+                                    <div class="section-title">
+                                        <span>🎯</span>
+                                        <span>Areas of Focus</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="focus">
+                                    <div class="question-grid">
+                                        <div class="question-card purple">Nature of existence</div>
+                                        <div class="question-card purple">Origins of the universe</div>
+                                        <div class="question-card purple">Creator and creation</div>
+                                        <div class="question-card purple">Final truth</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Episode 4 Content -->
+                        <div class="episode-content hidden" id="episode-3">
+                            <div class="info-grid">
+                                <div class="info-card">
+                                    <h3>Classification</h3>
+                                    <p>Nastika (heterodox) - rejects Vedic authority</p>
+                                </div>
+                                <div class="info-card">
+                                    <h3>Alternative Name</h3>
+                                    <p>Lokayat - focus on material world</p>
+                                </div>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="beliefs">
+                                    <div class="section-title">
+                                        <span>🧠</span>
+                                        <span>Core Beliefs</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="beliefs">
+                                    <ul class="concept-list">
+                                        <li class="concept-item">
+                                            <div class="concept-bullet red"></div>
+                                            <span>Only physical world is real</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet red"></div>
+                                            <span>Pursuit of happiness in this life</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet red"></div>
+                                            <span>No soul, afterlife, karma, rebirth</span>
+                                        </li>
+                                        <li class="concept-item">
+                                            <div class="concept-bullet red"></div>
+                                            <span>No moksha (liberation)</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="critiques">
+                                    <div class="section-title">
+                                        <span>🎯</span>
+                                        <span>Critiques</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="critiques">
+                                    <div class="question-grid">
+                                        <div class="question-card red">Religious rituals as exploitation</div>
+                                        <div class="question-card red">Priestly authority</div>
+                                        <div class="question-card red">Concept of salvation</div>
+                                        <div class="question-card red">Absolute morality as subjective</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="maxim-box">
+                                <h3>Key Maxim</h3>
+                                <p>"Live happily as long as you live; enjoy life even if you have to borrow money"</p>
+                            </div>
+                            
+                            <div class="expandable-section">
+                                <button class="section-header" data-section="history">
+                                    <div class="section-title">
+                                        <span>📅</span>
+                                        <span>Historical Context</span>
+                                    </div>
+                                    <span class="chevron">▶</span>
+                                </button>
+                                <div class="section-content" id="history">
+                                    <div class="historical-info">
+                                        <div>
+                                            <span>Period:</span>
+                                            <span>6th century BCE</span>
+                                        </div>
+                                        <div>
+                                            <span>Key Figures:</span>
+                                            <div class="figure-tags">
+                                                <span class="figure-tag">Ajita Kesakambali</span>
+                                                <span class="figure-tag">Brihaspati</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span>Sources:</span>
+                                            <span>Original texts lost; known through critiques</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Episode data
+        const episodes = [
+            {
+                title: "Episode 1: What is Philosophy?",
+                subtitle: "Introduction to Darshan",
+                icon: "💡",
+                iconClass: "blue"
+            },
+            {
+                title: "Episode 2: History of Indian Philosophy",
+                subtitle: "From Vedas to Osho",
+                icon: "📅",
+                iconClass: "green"
+            },
+            {
+                title: "Episode 3: Ultimate Reality",
+                subtitle: "Metaphysical Inquiry",
+                icon: "👁️",
+                iconClass: "purple"
+            },
+            {
+                title: "Episode 4: Charvaka Philosophy",
+                subtitle: "Materialistic Worldview",
+                icon: "🧠",
+                iconClass: "red"
+            }
+        ];
+
+        // Initialize
+        let currentEpisode = 0;
+        const expandedSections = new Set();
+
+        // Episode navigation
+        document.querySelectorAll('.episode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const episodeIndex = parseInt(this.dataset.episode);
+                switchEpisode(episodeIndex);
+            });
+        });
+
+        // Section expansion
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const sectionId = this.dataset.section;
+                toggleSection(sectionId);
+            });
+        });
+
+        function switchEpisode(episodeIndex) {
+            // Update navigation
+            document.querySelectorAll('.episode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-episode="${episodeIndex}"]`).classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.episode-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`episode-${episodeIndex}`).classList.remove('hidden');
+
+            // Update header
+            const episode = episodes[episodeIndex];
+            document.getElementById('episode-title').textContent = episode.title;
+            document.getElementById('episode-subtitle').textContent = episode.subtitle;
+            
+            // Update header icon
+            const headerIcon = document.querySelector('.content-header .episode-icon');
+            headerIcon.textContent = episode.icon;
+            headerIcon.className = `episode-icon ${episode.iconClass}`;
+
+            currentEpisode = episodeIndex;
+        }
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const chevron = document.querySelector(`[data-section="${sectionId}"] .chevron`);
+            
+            if (expandedSections.has(sectionId)) {
+                content.classList.remove('expanded');
+                chevron.classList.remove('expanded');
+                expandedSections.delete(sectionId);
+            } else {
+                content.classList.add('expanded');
+                chevron.classList.add('expanded');
+                expandedSections.add(sectionId);
+            }
+        }
+    </script>
+</body>
+</html>
